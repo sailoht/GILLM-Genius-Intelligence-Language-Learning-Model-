@@ -11,6 +11,9 @@ IRREGULAR_PAST_PARTICIPLE = {
     "has": ("have", {"tense": "PRESENT", "number": "SINGULAR", "person": "THIRD"}),
     "ate": ("eat", {"tense": "PAST"}),
     "eaten": ("eat", {"tense": "PAST_PARTICIPLE"}),
+    "bought": ("buy", {"tense": "PAST"}),
+    "smiled": ("smile", {"tense": "PAST"}),
+    "stayed": ("stay", {"tense": "PAST"}),
 }
 
 IRREGULAR_PLURALS = {

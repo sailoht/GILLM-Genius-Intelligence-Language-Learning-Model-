@@ -52,6 +52,16 @@
         "verb_frames": ["AGENT_PATIENT"],
         "transitivity": "transitive"
     },
+    "didn't": {
+        "lemma": "do",
+        "pos_candidates": ["AUX", "VERB"],
+        "definition": "Contraction of did not",
+        "frequency": 8.0,
+        "morphological_features": {
+            "tense": "PAST",
+            "polarity": "NEGATIVE"
+        }
+    },
     "what": {
         "lemma": "what",
         "pos_candidates": ["PRON"],
@@ -177,5 +187,309 @@
         "frequency": 6.5,
         "verb_frames": ["EXPERIENCER_PATIENT", "AGENT_PATIENT"],
         "transitivity": "transitive"
+    },
+    "school": {
+        "lemma": "school",
+        "pos_candidates": ["NOUN"],
+        "definition": "An institution for educating children",
+        "frequency": 5.0,
+        "semantic_categories": ["ENTITY", "LOCATION"]
+    },
+    "man": {
+        "lemma": "man",
+        "pos_candidates": ["NOUN"],
+        "definition": "An adult human male",
+        "frequency": 5.5,
+        "semantic_categories": ["PERSON"]
+    },
+    "honest": {
+        "lemma": "honest",
+        "pos_candidates": ["ADJ"],
+        "definition": "Free of deceit; truthful and sincere",
+        "frequency": 4.0
+    },
+    "mathematics": {
+        "lemma": "mathematics",
+        "pos_candidates": ["NOUN"],
+        "definition": "The abstract science of number, quantity, and space",
+        "frequency": 3.0,
+        "semantic_categories": ["ENTITY"]
+    },
+    "math": {
+        "lemma": "math",
+        "pos_candidates": ["NOUN"],
+        "definition": "Short for mathematics",
+        "frequency": 3.5,
+        "semantic_categories": ["ENTITY"]
+    },
+    "there": {
+        "lemma": "there",
+        "pos_candidates": ["ADV"],
+        "definition": "In, at, or to that place or position",
+        "frequency": 7.0
+    },
+    "yesterday": {
+        "lemma": "yesterday",
+        "pos_candidates": ["ADV", "NOUN"],
+        "definition": "On the day before today",
+        "frequency": 5.0
+    },
+    "two": {
+        "lemma": "two",
+        "pos_candidates": ["DET", "NUM"],
+        "definition": "Equivalent to the sum of one and one",
+        "frequency": 6.5
+    },
+    "book": {
+        "lemma": "book",
+        "pos_candidates": ["NOUN", "VERB"],
+        "definition": "A written or printed work consisting of pages glued or sewn together",
+        "frequency": 5.5,
+        "semantic_categories": ["ENTITY"]
+    },
+    "books": {
+        "lemma": "book",
+        "pos_candidates": ["NOUN"],
+        "definition": "Plural of book",
+        "frequency": 5.5,
+        "semantic_categories": ["ENTITY"],
+        "morphological_features": {
+            "number": "PLURAL"
+        }
+    },
+    "one": {
+        "lemma": "one",
+        "pos_candidates": ["DET", "NUM"],
+        "definition": "The lowest cardinal number",
+        "frequency": 7.0
+    },
+    "many": {
+        "lemma": "many",
+        "pos_candidates": ["DET"],
+        "definition": "A large number of",
+        "frequency": 6.5
+    },
+    "these": {
+        "lemma": "these",
+        "pos_candidates": ["DET"],
+        "definition": "Plural of this",
+        "frequency": 7.0
+    },
+    "those": {
+        "lemma": "those",
+        "pos_candidates": ["DET"],
+        "definition": "Plural of that",
+        "frequency": 6.5
+    },
+    "a": {
+        "lemma": "a",
+        "pos_candidates": ["DET"],
+        "definition": "The indefinite article",
+        "frequency": 9.5
+    },
+    "an": {
+        "lemma": "an",
+        "pos_candidates": ["DET"],
+        "definition": "The indefinite article used before vowel sounds",
+        "frequency": 9.0
+    },
+    "to": {
+        "lemma": "to",
+        "pos_candidates": ["ADP"],
+        "definition": "Preposition expressing direction",
+        "frequency": 9.0
+    },
+    "me": {
+        "lemma": "me",
+        "pos_candidates": ["PRON"],
+        "definition": "Used by a speaker to refer to himself or herself as the object of a verb",
+        "frequency": 8.5,
+        "semantic_categories": ["PERSON"]
+    },
+    "he": {
+        "lemma": "he",
+        "pos_candidates": ["PRON"],
+        "definition": "Refers to a male person",
+        "frequency": 9.0,
+        "semantic_categories": ["PERSON"]
+    },
+    "she": {
+        "lemma": "she",
+        "pos_candidates": ["PRON"],
+        "definition": "Refers to a female person",
+        "frequency": 9.0,
+        "semantic_categories": ["PERSON"]
+    },
+    "they": {
+        "lemma": "they",
+        "pos_candidates": ["PRON"],
+        "definition": "Refers to two or more people",
+        "frequency": 9.0,
+        "semantic_categories": ["PERSON"]
+    },
+    "we": {
+        "lemma": "we",
+        "pos_candidates": ["PRON"],
+        "definition": "Used by a speaker to refer to himself or herself and other people",
+        "frequency": 9.0,
+        "semantic_categories": ["PERSON"]
+    },
+    "you": {
+        "lemma": "you",
+        "pos_candidates": ["PRON"],
+        "definition": "Refers to the person or people being addressed",
+        "frequency": 9.5,
+        "semantic_categories": ["PERSON"]
+    },
+    "smiled": {
+        "lemma": "smile",
+        "pos_candidates": ["VERB"],
+        "definition": "Form one's features into a pleased or amused expression",
+        "frequency": 4.0,
+        "morphological_features": {
+            "tense": "PAST"
+        }
+    },
+    "smile": {
+        "lemma": "smile",
+        "pos_candidates": ["VERB", "NOUN"],
+        "definition": "Pleased expression on face",
+        "frequency": 4.5
+    },
+    "raining": {
+        "lemma": "rain",
+        "pos_candidates": ["VERB"],
+        "definition": "Precipitating water droplets",
+        "frequency": 4.0,
+        "morphological_features": {
+            "tense": "PRESENT_PARTICIPLE",
+            "aspect": "PROGRESSIVE"
+        }
+    },
+    "rain": {
+        "lemma": "rain",
+        "pos_candidates": ["VERB", "NOUN"],
+        "definition": "Precipitation of water",
+        "frequency": 4.5
+    },
+    "stayed": {
+        "lemma": "stay",
+        "pos_candidates": ["VERB"],
+        "definition": "Remain in the same place",
+        "frequency": 4.0,
+        "morphological_features": {
+            "tense": "PAST"
+        }
+    },
+    "stay": {
+        "lemma": "stay",
+        "pos_candidates": ["VERB"],
+        "definition": "Remain in a state or place",
+        "frequency": 4.5
+    },
+    "home": {
+        "lemma": "home",
+        "pos_candidates": ["NOUN", "ADV"],
+        "definition": "The place where one lives permanently",
+        "frequency": 6.5,
+        "semantic_categories": ["ENTITY", "LOCATION"]
+    },
+    "bought": {
+        "lemma": "buy",
+        "pos_candidates": ["VERB"],
+        "definition": "Obtain in exchange for payment",
+        "frequency": 5.0,
+        "morphological_features": {
+            "tense": "PAST"
+        }
+    },
+    "buy": {
+        "lemma": "buy",
+        "pos_candidates": ["VERB"],
+        "definition": "Acquire through exchange of value",
+        "frequency": 5.5,
+        "verb_frames": ["AGENT_PATIENT"],
+        "transitivity": "transitive"
+    },
+    "read": {
+        "lemma": "read",
+        "pos_candidates": ["VERB"],
+        "definition": "Look at and comprehend the meaning of written characters",
+        "frequency": 6.0,
+        "verb_frames": ["AGENT_PATIENT"],
+        "transitivity": "transitive"
+    },
+    "stone": {
+        "lemma": "stone",
+        "pos_candidates": ["NOUN"],
+        "definition": "Hard solid nonmetallic mineral matter",
+        "frequency": 3.5,
+        "semantic_categories": ["ENTITY"]
+    },
+    "moon": {
+        "lemma": "moon",
+        "pos_candidates": ["NOUN"],
+        "definition": "The natural satellite of the earth",
+        "frequency": 4.0,
+        "semantic_categories": ["ENTITY"]
+    },
+    "good": {
+        "lemma": "good",
+        "pos_candidates": ["ADJ"],
+        "definition": "To be desired or approved of; of high quality",
+        "frequency": 7.0
+    },
+    "in": {
+        "lemma": "in",
+        "pos_candidates": ["ADP"],
+        "definition": "Preposition expressing inclusion",
+        "frequency": 9.0
+    },
+    "is": {
+        "lemma": "be",
+        "pos_candidates": ["AUX", "VERB"],
+        "definition": "Third person singular present of be",
+        "frequency": 9.5,
+        "morphological_features": {
+            "tense": "PRESENT",
+            "number": "SINGULAR",
+            "person": "THIRD"
+        }
+    },
+    "not": {
+        "lemma": "not",
+        "pos_candidates": ["ADV"],
+        "definition": "Used to express negation",
+        "frequency": 9.5
+    },
+    "no": {
+        "lemma": "no",
+        "pos_candidates": ["DET", "ADV"],
+        "definition": "Not any; used to indicate negation",
+        "frequency": 9.0
+    },
+    "nothing": {
+        "lemma": "nothing",
+        "pos_candidates": ["PRON"],
+        "definition": "Not anything; no single thing",
+        "frequency": 7.5
+    },
+    "any": {
+        "lemma": "any",
+        "pos_candidates": ["DET"],
+        "definition": "One or some of a thing",
+        "frequency": 8.5
+    },
+    "anything": {
+        "lemma": "anything",
+        "pos_candidates": ["PRON"],
+        "definition": "A thing of any kind",
+        "frequency": 8.0
+    },
+    "therefore": {
+        "lemma": "therefore",
+        "pos_candidates": ["ADV"],
+        "definition": "For that reason; consequently",
+        "frequency": 6.5
     }
 }

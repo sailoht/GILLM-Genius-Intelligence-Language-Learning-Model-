@@ -13,6 +13,15 @@ from gillm.gsl.gcpr.models import (
     SemanticRepresentation, ConversationRepresentation, UncertaintyRepresentation
 )
 
+# GSL 1.1 Error System Imports
+from gillm.gsl.error import run_full_error_analysis
+from gillm.gsl.error.validator import BidirectionalValidator
+from gillm.gsl.grammar.rules import (
+    analyze_temporal_relations, analyze_discourse_relations,
+    resolve_speech_act, get_figurative_language_extensions,
+    get_exercise_system_extensions
+)
+
 def score_complete_parse(tree, resolved_roles: Dict[str, Any]) -> float:
     """
     Linguistically scores a complete parse tree structure based on syntax and semantic coherence.
@@ -42,6 +51,8 @@ class GSLPhaser:
         self.parser = ChartParser()
         self.role_resolver = SemanticRoleResolver()
         self.question_phaser = QuestionPhaser()
+        self.bidirectional_validator = BidirectionalValidator(self)
+        self._in_validation = False
 
     def phase(self, text: str, context: Optional[Any] = None) -> Tuple[GCPR, PhaseTrace]:
         trace = PhaseTrace()
@@ -75,11 +86,41 @@ class GSLPhaser:
             syntax_log_lines.append(p.pretty_format())
         trace.log_syntax("\n".join(syntax_log_lines) if syntax_log_lines else "No valid parses found!")
 
+        errors_found = run_full_error_analysis(tokens, self.candidate_generator, self.lexical_scorer)
+
+        tracked_entities = {}
+        for token_cands in candidates_scored:
+            for c in token_cands:
+                if c.pos == "NOUN" and c.lemma not in ["unknown", "duck", "stone"]:
+                    tracked_entities[c.lemma.lower()] = {
+                        "lemma": c.lemma,
+                        "status": "PRESERVED_FOR_FUTURE_COREFERENCE",
+                        "pos": "NOUN"
+                    }
+
         if not parses:
             surface = SurfaceRepresentation(original_text=text, tokens=[{"text": t.text, "type": t.token_type} for t in tokens])
             empty_gcpr = GCPR(surface=surface)
             empty_gcpr.uncertainty.confidence = 0.0
-            trace.log_gcpr(json.dumps(empty_gcpr.to_dict(), indent=2))
+
+            gcpr_dict = empty_gcpr.to_dict()
+            gcpr_dict["gsl_version"] = "1.1"
+            gcpr_dict["gcpr_version"] = "0.5"
+            gcpr_dict["gillm_version"] = "0.5.0"
+            gcpr_dict["errors"] = [e.to_dict() for e in errors_found]
+            gcpr_dict["semantic"]["entities"] = tracked_entities
+
+            # GSL 1.1 extra fields on fallback:
+            gcpr_dict["temporal_relations"] = analyze_temporal_relations(text)
+            gcpr_dict["discourse_relations"] = analyze_discourse_relations(text)
+            gcpr_dict["speech_act"] = resolve_speech_act(text, "statement")
+            gcpr_dict["figurative_language"] = get_figurative_language_extensions(text, errors_found)
+            gcpr_dict["exercises"] = get_exercise_system_extensions(gcpr_dict)
+
+            trace.log_semantics("No valid parse found. UNKNOWN output.")
+            trace.log_gcpr(json.dumps(gcpr_dict, indent=2))
+
+            empty_gcpr.extra_fields = gcpr_dict
             return empty_gcpr, trace
 
         interpretations: List[Dict[str, Any]] = []
@@ -124,7 +165,7 @@ class GSLPhaser:
 
             semantic_data = SemanticRepresentation(
                 roles=resolved_roles,
-                entities={},
+                entities=dict(tracked_entities),
                 relations=[]
             )
 
@@ -146,7 +187,6 @@ class GSLPhaser:
             intent_val = IntentClassifier.classify(gcpr_candidate.to_dict())
             gcpr_candidate.intent = intent_val
 
-            # Compute complete structural/semantic score
             final_score = score_complete_parse(tree, resolved_roles)
 
             interpretations.append({
@@ -154,7 +194,6 @@ class GSLPhaser:
                 "score": final_score
             })
 
-        # Sort interpretations by score descending
         interpretations.sort(key=lambda x: x["score"], reverse=True)
 
         best_gcpr = interpretations[0]["gcpr"]
@@ -175,10 +214,49 @@ class GSLPhaser:
         if context:
             gcpr_dict = best_gcpr.to_dict()
             resolved_dict = context.resolve_coreferences(gcpr_dict)
-            best_gcpr.semantic.entities = resolved_dict["semantic"]["entities"]
+            best_gcpr.semantic.entities.update(resolved_dict["semantic"]["entities"])
+
+        temporal_rel = analyze_temporal_relations(text)
+        discourse_rel = analyze_discourse_relations(text)
+
+        speech_act = resolve_speech_act(text, best_gcpr.linguistic.sentence_type)
+
+        fig_lang = get_figurative_language_extensions(text, errors_found)
+
+        exercise_data = get_exercise_system_extensions(best_gcpr.to_dict())
+
+        final_dict = best_gcpr.to_dict()
+        final_dict["gsl_version"] = "1.1"
+        final_dict["gcpr_version"] = "0.5"
+        final_dict["gillm_version"] = "0.5.0"
+
+        final_dict["speech_act"] = speech_act
+        final_dict["temporal_relations"] = temporal_rel
+        final_dict["discourse_relations"] = discourse_rel
+        final_dict["errors"] = [e.to_dict() for e in errors_found]
+        final_dict["figurative_language"] = fig_lang
+        final_dict["exercises"] = exercise_data
+
+        # 7. Run Bidirectional Validation with Recursion Guard
+        if not self._in_validation:
+            self._in_validation = True
+            try:
+                is_consistent, val_notes = self.bidirectional_validator.validate_structural_consistency(best_gcpr)
+            finally:
+                self._in_validation = False
+        else:
+            is_consistent = True
+            val_notes = ["Skipped nested validation to prevent infinite recursion."]
+
+        final_dict["bidirectional_validation"] = {
+            "consistent": is_consistent,
+            "notes": val_notes
+        }
+
+        best_gcpr.extra_fields = final_dict
 
         roles_str = ", ".join([f"{k} = {v}" for k, v in best_gcpr.semantic.roles.items()])
         trace.log_semantics(roles_str)
-        trace.log_gcpr(json.dumps(best_gcpr.to_dict(), indent=2))
+        trace.log_gcpr(json.dumps(final_dict, indent=2))
 
         return best_gcpr, trace

@@ -1,6 +1,9 @@
 # GILLM — Genius Intelligence Language Learning Model
 
-### Current Language-Engine Milestone: **GSL 1.0 (GILLM Structure Library)**
+### Project Master Version Map:
+*   **Overall GILLM Milestone**: `GILLM 0.5.0` (Experimental Prototype)
+*   **Language-Phasing Engine**: `GSL 1.1` (GILLM Structure Library)
+*   **Intermediate Contract Representation**: `GCPR 0.5` (GILLM Common Phase Representation)
 
 ---
 
@@ -10,8 +13,8 @@ GILLM (Genius Intelligence Language Learning Model) is an experimental research 
 
 ```mermaid
 graph TD
-    A[Raw User Input] --> B[GSL 1.0 Phasing Engine]
-    B --> C[GCPR Representation]
+    A[Raw User Input] --> B[GSL 1.1 Phasing & Error Engine]
+    B --> C[GCPR 0.5 Representation]
     C --> D[GILLM Intent & Search Key]
     D --> E[Future Knowledge / Action Systems]
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -23,20 +26,20 @@ graph TD
 
 ### The Central Phasing Pipeline:
 ```
-Raw Language → Tokens → Morphology → Lexical Candidates → Syntax → Semantic Roles → Question/Intent Structure → GCPR → Future Knowledge Map
+Raw Language → Tokens → Morphology → Lexical Candidates → Syntax → Semantic Roles → Question/Intent Structure → GCPR 0.5 → Future Knowledge Map
 ```
 
-> **Crucial Milestone Disclaimer**: GSL 1.0 is **NOT** intended to understand all human language. The objective of GSL 1.0 is to establish a deterministic, compositional, and completely traceable language-processing foundation that can be expanded incrementally.
+> **Crucial Version Disclaimer**: GSL 1.1 is **NOT** intended to understand all human language. The objective of GSL 1.1 is to establish a deterministic, compositional, and completely traceable language-processing and error-detection foundation that can be expanded incrementally.
 
 ---
 
 ## 2. WHAT IS GSL?
 
-**GSL** stands for **GILLM Structure Library**. It is the modular, deterministic, and compositional language-processing foundation of the GILLM project.
+**GSL** stands for **GILLM Structure Library**. It is the modular, deterministic, and compositional language-processing and error-detection foundation of the GILLM project.
 
 GSL is responsible for converting raw, natural-language input into a structured contract representation called **GCPR** (GILLM Common Phase Representation) without making premature guesses.
 
-### The GSL 1.0 Processing Pipeline:
+### The GSL 1.1 Processing Pipeline:
 ```mermaid
 graph TD
     Input[User Input] --> Mgr[Input Manager]
@@ -48,7 +51,8 @@ graph TD
     Parser --> Frame[Verb Frame Registry]
     Frame --> Roles[Semantic Role Resolver]
     Roles --> Quest[Question Phaser]
-    Quest --> GCPR[GCPR Builder]
+    Quest --> Err[Error & Validation Engine]
+    Err --> GCPR[GCPR 0.5 Builder]
     GCPR --> Intent[Intent & Search Key Classifier]
     Intent --> Future[Future Knowledge System Concept]
 
@@ -57,7 +61,7 @@ graph TD
 
 ---
 
-## 3. GSL 1.0 MODULAR ARCHITECTURE
+## 3. GSL 1.1 MODULAR ARCHITECTURE
 
 GSL is built on the strict software engineering principle of **separation of concerns**. To prevent the system from committing prematurely to a single interpretation, each module operates on candidate groups and propagates evidence.
 
@@ -73,6 +77,7 @@ GSL is built on the strict software engineering principle of **separation of con
 | `grammar/` | Governs agreement constraints and GCPR transformations | `GCPR` | Transformed `GCPR` |
 | `semantics/` | Resolves action-specific semantic argument roles | `ParseNode` | `Dict[str, Any]` semantic roles |
 | `questions/` | Discovers missing semantic slot expectations from query syntax | `ParseNode` + roles | Question family & expected answer |
+| `error/` | Validates grammatical/selectional rules and identifies error objects | Tokens + `GCPR` | `List[ErrorObject]` and validation status |
 | `gcpr/` | Constructs and validates the final JSON contract structure | `GCPR` components | Standardized JSON representation |
 | `conversation/`| Tracks conversation history and pronoun reference links | Turns data + `GCPR` | Resolved coreferences |
 | `intent/` | Extracts the core user intent and generates SearchKeys | `GCPR` dictionary | `SearchKey(concept, intent)` |
@@ -81,9 +86,9 @@ GSL is built on the strict software engineering principle of **separation of con
 
 ---
 
-## 4. GILLM COMMON PHASE REPRESENTATION (GCPR)
+## 4. GILLM COMMON PHASE REPRESENTATION (GCPR 0.5)
 
-The **GCPR** is the stable, standardized intermediate contract representation used between the GSL language-processing layers and future GILLM reasoning systems.
+The **GCPR 0.5** is the stable, standardized intermediate contract representation used between the GSL 1.1 language-processing layers and future GILLM reasoning systems.
 
 ### Conceptual Structure:
 For the input: `"The boy opened the door."`
@@ -121,7 +126,18 @@ For the input: `"The boy opened the door."`
       "agent": "boy",
       "patient": "door"
     },
-    "entities": {},
+    "entities": {
+      "boy": {
+        "lemma": "boy",
+        "status": "PRESERVED_FOR_FUTURE_COREFERENCE",
+        "pos": "NOUN"
+      },
+      "door": {
+        "lemma": "door",
+        "status": "PRESERVED_FOR_FUTURE_COREFERENCE",
+        "pos": "NOUN"
+      }
+    },
     "relations": []
   },
   "conversation": {
@@ -134,6 +150,28 @@ For the input: `"The boy opened the door."`
     "ambiguous": false,
     "alternatives": [],
     "confidence": 1.0
+  },
+  "gsl_version": "1.1",
+  "gcpr_version": "0.5",
+  "gillm_version": "0.5.0",
+  "errors": [],
+  "speech_act": "STATEMENT",
+  "temporal_relations": [],
+  "discourse_relations": [],
+  "figurative_language": {
+    "is_figurative": false,
+    "type": null,
+    "metadata": {}
+  },
+  "exercises": {
+    "fill_in_blanks_candidates": [ ... ],
+    "grammar_transformations": {
+      "can_transform_passive": true
+    }
+  },
+  "bidirectional_validation": {
+    "consistent": true,
+    "notes": [ ... ]
   }
 }
 ```
@@ -142,7 +180,7 @@ For the input: `"The boy opened the door."`
 
 ## 5. QUESTION PHASING & SEMANTIC SLOT RESOLUTION
 
-GSL does **NOT** treat question processing as simple keyword mappings (e.g. mapping "Who" blindly to a person entity). Instead, it uses **Syntax + Verb Frames + Semantic Roles** to determine exactly which slot is missing.
+GSL 1.1 does **NOT** treat question processing as simple keyword mappings. Instead, it uses **Syntax + Verb Frames + Semantic Roles** to determine exactly which slot is missing.
 
 ### Demonstration:
 
@@ -174,7 +212,7 @@ For example, in the sentence `"I saw her duck."`:
 * **Interpretation 1 (Noun interpretation)**: `[S [NP: I] [VP: saw [NP: [Det: her] [Noun: duck]]]]` (I saw the bird belonging to her)
 * **Interpretation 2 (Verb interpretation)**: `[S [NP: I] [VP: saw [NP: [Pron: her]] [VP: duck]]]` (I watched her lower her body)
 
-GSL's chart parser generates both valid trees, scores them, and since their scores are close, sets `"ambiguous": true` and lists the second tree under `"alternatives"` in GCPR.
+GSL's chart parser generates both valid trees, scores them, and since their scores are close, sets `"ambiguous": true` and lists the second tree under `"alternatives"` in GCPR 0.5.
 
 ---
 
@@ -199,17 +237,17 @@ Selected Candidate: "the" (DET)
 
 ## 8. EVOLUTION FROM GILLM 0.5.0
 
-*   **GILLM 0.5.0 (Earlier Prototype)**: Initial experimental prototype exploring token patterns and lexical lookups.
-*   **GSL 1.0 (Current Milestone)**: Fully modularized, explicit, and deterministic structural language engine featuring chart parsing, morphological candidate trees, verb frames, and GCPR contract representations.
+*   **GILLM 0.5.0 (Experimental Prototype)**: Initial experimental prototype exploring token patterns, lexical lookups, and explicit structure phasing.
+*   **GSL 1.1 (Current Language Phasing Engine)**: Featuring strict error and validation analysis, bidirectional verification, speech acts, and temporal/discourse relation tracking.
 *   **Future GILLM Milestones**: Planned additions of vector map representations, proactive execution systems, and Jarvis automation.
 
 ---
 
 ## 9. GILLM VS CONVENTIONAL LLMs
 
-| Dimension | Conventional LLM | GILLM/GSL (Proposed Architecture) |
+| Dimension | Typical LLM | GILLM/GSL 1.1 (Proposed Architecture) |
 | :--- | :--- | :--- |
-| **Representation** | Unlabeled vector parameters | Explicitly labeled linguistic trees & GCPR |
+| **Representation** | Unlabeled vector parameters | Explicitly labeled linguistic trees & GCPR 0.5 |
 | **Learning Mechanism** | Statistical token correlation | Compositional grammatical rules & Lexicon |
 | **Grammar** | Latent in network weights | Rule-based parser & morphological composition |
 | **Ambiguity** | Forced sample / token logits | Preserved explicit alternative GCPR records |
@@ -235,11 +273,11 @@ Our core design principles are:
 ## 11. ROADMAP
 
 ```
-GILLM 0.5.0 (Linguistic Experimentation)
+GILLM 0.5.0 / GSL 1.0 (Compositional Phasing & GCPR)
     ↓
-GSL 1.0 (Compositional Phasing & GCPR) [CURRENT]
+GILLM 0.5.0 / GSL 1.1 / GCPR 0.5 (Error Analysis & Structural Verification) [CURRENT]
     ↓
-GILLM 1.x (Extended Grammar & Phrase Realization)
+GILLM 1.x (Extended Grammar & Phrase Realization) [PLANNED]
     ↓
 GILLM 2.0 (Structured 3D Knowledge Registry) [PLANNED]
     ↓
@@ -276,7 +314,7 @@ GSL progressively decouples surface language from abstract structure:
 
 ## 14. KNOWLEDGE HUB & FUTURE 3D MAPS
 
-Our planned GILLM 2.0 research milestone introduces an experimental structured relationship map where knowledge concepts represent coordinates and topics correspond to hubs:
+Our planned GILLM 2.0 research milestone introduces an experimental structured relationship map where knowledge entities represent coordinates and topics correspond to hubs:
 
 ```
 GSL → GCPR → Intent → Search Key → Knowledge Hub → Topic Relationship → Document Map
@@ -286,14 +324,14 @@ GSL → GCPR → Intent → Search Key → Knowledge Hub → Topic Relationship 
 
 ## 15. VISUAL PIPELINE SUMMARY
 
-### GSL 1.0 Phasing Pipeline:
+### GSL 1.1 Phasing Pipeline:
 ```mermaid
 graph LR
     User["The dog eats food."] --> Tok["Tokenizer: [The, dog, eats, food]"]
     Tok --> Morph["Morphology: eat + PRESENT + 3SG"]
     Morph --> Parse["Parser: [S [NP the dog] [VP eats food]]"]
     Parse --> Sem["Semantics: agent=dog, action=eat, patient=food"]
-    Sem --> GCPR["GCPR Representation"]
+    Sem --> GCPR["GCPR 0.5 Representation"]
 ```
 
 ---
@@ -345,51 +383,7 @@ Did the dog eat food?
 === TOKENIZATION ===
 Did | the | dog | eat | food | ?
 
-=== MORPHOLOGY ===
-did:
-  -> lemma='do', pos=AUX, features={tense=PAST}
-  -> lemma='do', pos=VERB, features={tense=PAST}
-the:
-  -> lemma='the', pos=DET, features={}
-dog:
-  -> lemma='dog', pos=NOUN, features={number=SINGULAR}
-eat:
-  -> lemma='eat', pos=VERB, features={tense=PRESENT}
-food:
-  -> lemma='food', pos=NOUN, features={number=SINGULAR}
-
-=== LEXICON ===
-Word: 'Did' matched lemma 'do' with POS candidate AUX. Meaning: Auxiliary verb past tense or action verb
-Word: 'the' matched lemma 'the' with POS candidate DET. Meaning: Definite article
-Word: 'dog' matched lemma 'dog' with POS candidate NOUN. Meaning: A domesticated carnivorous mammal
-Word: 'eat' matched lemma 'eat' with POS candidate VERB. Meaning: Put food into the mouth and chew and swallow it
-Word: 'food' matched lemma 'food' with POS candidate NOUN. Meaning: Any nutritious substance
-
-=== SYNTAX ===
-[S_Q] feats={'semantic_categories': ['ENTITY'], 'number': None, 'tense': 'PAST', 'aspect': None, 'person': None, 'voice': 'ACTIVE'}
-  [Aux] (Did -> lemma=do, pos=AUX)
-  [NP] feats={'semantic_categories': ['ENTITY', 'ANIMAL'], 'number': 'SINGULAR'}
-    [Det] (the -> lemma=the, pos=DET)
-    [Noun] (dog -> lemma=dog, pos=NOUN)
-  [VP] feats={'tense': 'PRESENT', 'semantic_categories': ['ENTITY'], 'number': None, 'aspect': None, 'person': None}
-    [Verb] (eat -> lemma=eat, pos=VERB)
-    [NP] feats={'number': 'SINGULAR', 'semantic_categories': ['ENTITY']}
-      [Noun] (food -> lemma=food, pos=NOUN)
-
-=== VERB FRAME ===
-Action: eat -> expectation frame role slots resolved from tree.
-
-=== SEMANTICS ===
-action = eat, agent = dog, patient = food
-
-=== GCPR ===
-{
-  "surface": {
-    "original_text": "Did the dog eat food?",
-    "tokens": [ ... ]
-  },
-  ...
-}
+...
 ========================================
 ```
 
@@ -400,7 +394,7 @@ action = eat, agent = dog, patient = food
 | Component | Status |
 | :--- | :--- |
 | **Input Manager** | Implemented |
-| **Tokenizer** | Implemented |
+| **Tokenizer** | Implemented (Supporting Contractions) |
 | **Lexicon Adapter & JSON** | Implemented |
 | **Morphological Analyzer** | Implemented |
 | **Candidate Generator & Scorer**| Implemented |
@@ -409,11 +403,12 @@ action = eat, agent = dog, patient = food
 | **Semantic Role Resolver** | Implemented |
 | **Question Phaser** | Implemented |
 | **GCPR Builder & Validator** | Implemented |
-| **Transformations (Active/Passive)**| Prototype |
-| **Conversation Context** | Prototype |
-| **Intent/SearchKey Classifier**| Prototype |
-| **Language Realizer** | Prototype |
-| **PhaseTrace Diagnostics** | Implemented |
+| **Modular Error Detectors** | Implemented (14 error classes) |
+| **Bidirectional Validator** | Implemented |
+| **Temporal & Discourse Relations**| Experimental Extension |
+| **Speech Act Intent Classifier**| Experimental Extension |
+| **Figurative Language Parser** | Experimental Extension |
+| **Exercise Generation System** | Experimental Extension |
 | **3D Knowledge Map** | Planned (GILLM 2.0) |
 | **Proactive automation system**| Planned (GILLM 3.0) |
 
