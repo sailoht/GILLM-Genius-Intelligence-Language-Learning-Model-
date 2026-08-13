@@ -11,8 +11,6 @@ def check_capitalization(tokens: List[Token]) -> List[ErrorObject]:
     first_token = tokens[0]
     if first_token.token_type == "WORD" and first_token.text and not first_token.text[0].isupper():
         original_phrase = " ".join([t.text for t in tokens]).replace(" .", ".").replace(" ?", "?")
-
-        # Capitalize first token
         corrected_tokens = [t.text for t in tokens]
         corrected_tokens[0] = corrected_tokens[0][0].upper() + corrected_tokens[0][1:]
 

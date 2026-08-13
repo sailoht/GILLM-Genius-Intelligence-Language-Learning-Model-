@@ -6,7 +6,6 @@ def check_agreement(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. Subject-Verb Agreement checks
     for i in range(len(text_words) - 1):
         subj = text_words[i]
         verb = text_words[i+1]
@@ -85,7 +84,6 @@ def check_agreement(tokens: List[Token]) -> List[ErrorObject]:
                 ))
 
     # 2. Number / Plural Agreement checks
-    # e.g., "two book" -> "two books", "one books" -> "one book"
     for i in range(len(text_words) - 1):
         determiner = text_words[i]
         noun = text_words[i+1]

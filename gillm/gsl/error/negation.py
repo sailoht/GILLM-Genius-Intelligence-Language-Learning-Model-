@@ -6,8 +6,6 @@ def check_negation(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # Check for basic double negation like "didn't have no" -> "didn't have any"
-    # or "didn't see nothing" -> "didn't see anything"
     for i in range(len(text_words) - 2):
         if text_words[i] in ["didn't", "don't", "doesn't"] and text_words[i+1] in ["have", "see", "want"] and text_words[i+2] in ["no", "nothing"]:
             original_phrase = " ".join([t.text for t in tokens])

@@ -11,9 +11,7 @@ class Tokenizer:
         raw_tokens = self.pattern.findall(text)
         for i, raw in enumerate(raw_tokens):
             normalized = raw
-
-            # Use regex to support words with internal apostrophes as WORD
-            if re.match(r"^[a-zA-Z]+(?:'[a-zA-Z]+)?$", raw):
+            if raw.isalpha():
                 token_type = "WORD"
             elif raw.isdigit() or re.match(r"^\d+(?:\.\d+)?$", raw):
                 token_type = "NUMBER"

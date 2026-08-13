@@ -6,17 +6,13 @@ def check_determiners(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. I saw dog -> missing determiner
-    # "dog", "boy", "door" are singular count nouns that usually require a determiner.
-    # Check if they are preceded by a determiner, pronoun, or possessive
     for i, word in enumerate(text_words):
         if word in ["dog", "boy", "door"] and i > 0:
             preceding = text_words[i-1]
-            if preceding in ["saw", "opened", "see", "open", "likes", "likes", "with", "behind"]:
+            if preceding in ["saw", "opened", "see", "open", "likes", "with", "behind"]:
                 original_phrase = " ".join([t.text for t in tokens])
                 corrected_tokens = [t.text for t in tokens]
 
-                # Find position of count noun and insert "a"
                 for pos, t in enumerate(tokens):
                     if t.text.lower() == word and pos > 0 and tokens[pos-1].text.lower() == preceding:
                         corrected_tokens.insert(pos, "a")
@@ -34,7 +30,6 @@ def check_determiners(tokens: List[Token]) -> List[ErrorObject]:
                     correction_level=LEVEL_2
                 ))
 
-    # 2. "a honest man" -> "an honest man"
     for i in range(len(text_words) - 1):
         if text_words[i] == "a" and text_words[i+1] in ["honest", "apple", "orange", "elephant", "hour"]:
             original_phrase = " ".join([t.text for t in tokens])

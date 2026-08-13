@@ -39,11 +39,10 @@ class GCPR:
     conversation: ConversationRepresentation = field(default_factory=ConversationRepresentation)
     intent: Optional[str] = None
     uncertainty: UncertaintyRepresentation = field(default_factory=UncertaintyRepresentation)
-    extra_fields: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         """Converts GCPR dataclass to serializable nested dictionary structure."""
-        base = {
+        return {
             "surface": {
                 "original_text": self.surface.original_text,
                 "tokens": self.surface.tokens
@@ -71,6 +70,3 @@ class GCPR:
                 "confidence": self.uncertainty.confidence
             }
         }
-        if self.extra_fields:
-            base.update(self.extra_fields)
-        return base

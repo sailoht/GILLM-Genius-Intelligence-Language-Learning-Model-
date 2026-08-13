@@ -10,10 +10,7 @@ def check_punctuation(tokens: List[Token]) -> List[ErrorObject]:
 
     last_token = tokens[-1]
     if last_token.token_type != "PUNCTUATION":
-        # Missing punctuation!
         original_phrase = " ".join([t.text for t in tokens])
-
-        # Check if first word is a Wh-word or if there is an Aux first (signifying a question)
         text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
         is_question = False
         if text_words:

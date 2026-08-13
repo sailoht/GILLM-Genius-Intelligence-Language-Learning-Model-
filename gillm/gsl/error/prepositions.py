@@ -6,7 +6,6 @@ def check_prepositions(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. "good in mathematics" -> "good at mathematics"
     for i in range(len(text_words) - 2):
         if text_words[i] == "good" and text_words[i+1] == "in" and text_words[i+2] in ["mathematics", "math", "sports", "english"]:
             original_phrase = " ".join([t.text for t in tokens])

@@ -6,14 +6,11 @@ def check_pronouns(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. Me went -> should be I went
-    # If first word is 'me' and is followed by a verb
     if len(text_words) > 1 and text_words[0] == "me":
         if text_words[1] in ["went", "go", "goes", "opened", "saw", "eat", "eats", "ate"]:
             original_phrase = " ".join([t.text for t in tokens])
             corrected_tokens = [t.text for t in tokens]
 
-            # Find and replace "me" at start
             for pos, t in enumerate(tokens):
                 if t.text.lower() == "me" and pos == 0:
                     corrected_tokens[pos] = "I"

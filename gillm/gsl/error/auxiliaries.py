@@ -6,10 +6,7 @@ def check_auxiliaries(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. Did + Subject + went -> Did + Subject + go
     if len(text_words) >= 4 and text_words[0] in ["did", "didn't"]:
-        # "did" + subject + "went"
-        # e.g. "Did he went there?"
         for i, word in enumerate(text_words):
             if word == "went" and i >= 2:
                 original_phrase = " ".join([t.text for t in tokens])
@@ -30,7 +27,6 @@ def check_auxiliaries(tokens: List[Token]) -> List[ErrorObject]:
                     correction_level=LEVEL_2
                 ))
 
-    # 2. He didn't went -> He didn't go
     for i in range(len(text_words) - 1):
         if text_words[i] in ["didn't", "did not"] and text_words[i+1] == "went":
             original_phrase = " ".join([t.text for t in tokens])

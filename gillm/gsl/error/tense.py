@@ -6,7 +6,6 @@ def check_tense(tokens: List[Token]) -> List[ErrorObject]:
     errors = []
     text_words = [t.text.lower() for t in tokens if t.token_type == "WORD"]
 
-    # 1. Yesterday + go/eat -> should be went/ate
     if "yesterday" in text_words:
         for i, word in enumerate(text_words):
             if word == "go":
