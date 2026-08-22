@@ -1,0 +1,4 @@
+cycle_id,user_input,initial_force,force_decay_rate,friction,initial_velocity,time_to_near_zero,question_generated,user_response,new_force,trajectory_direction
+1,Let me change the topic completely to machine learning.,12.0,0.5,0.5,0.08289249160603743,14.799999999999963,Should we explore quantum entanglement or quantum superposition next?,Let me change the topic completely to machine learning.,12.0,"[-0.49999999999999983, 0.8660254037844388]"
+2,"Yes, let's continue discussing machine learning.",10.0,0.5,0.5,0.08340107340858464,15.200000000000195,Would you like to explore deep learning architectures?,"Yes, let's continue discussing machine learning.",10.0,"[-0.49999999999999983, 0.8660254037844388]"
+3,"Yes, let's continue discussing machine learning.",10.0,0.5,0.5,0.08293248504995074,14.80000000000021,Would you prefer discussing supervised learning or neural networks?,"Yes, let's continue discussing machine learning.",10.0,"[-0.49999999999999983, 0.8660254037844388]"

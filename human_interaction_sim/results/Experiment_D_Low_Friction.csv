@@ -1,0 +1,2 @@
+cycle_id,user_input,initial_force,force_decay_rate,friction,initial_velocity,time_to_near_zero,question_generated,user_response,new_force,trajectory_direction
+1,I want to learn quantum mechanics.,10.0,0.5,0.1,0.0,20.0,None,N/A,0.0,"[1.0, 0.5]"

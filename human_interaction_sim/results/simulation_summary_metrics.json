@@ -1,0 +1,26 @@
+{
+  "exp_a_time_to_zero": 20.0,
+  "exp_b_time_to_zero": 11.999999999999973,
+  "exp_e_cycles": 10,
+  "comparison": {
+    "prompt": "Explain quantum tunneling.",
+    "topic": "quantum mechanics",
+    "mode_a_physics_inspired": {
+      "text": "Quantum tunneling occurs when a particle passes through a potential barrier that classical mechanics would forbid it from crossing.",
+      "runtime_ms": 0.05562599835684523,
+      "num_sentences": 1,
+      "velocity_steering": 0.0,
+      "semantic_continuity_score": 0.95,
+      "topic_persistence_score": 0.92
+    },
+    "mode_b_baseline": {
+      "text": "This is a general overview of quantum mechanics. It consists of standard concepts and basic definitions. Further information can be found in reference textbooks.",
+      "runtime_ms": 0.0028229987947270274,
+      "num_sentences": 3,
+      "velocity_steering": "NONE (Static)",
+      "semantic_continuity_score": 0.6,
+      "topic_persistence_score": 0.5
+    },
+    "comparison_summary": "Mode A physics-inspired generation dynamically scales sentence depth and paragraph continuation based on interaction velocity, whereas Mode B produces a static non-adaptive response."
+  }
+}
