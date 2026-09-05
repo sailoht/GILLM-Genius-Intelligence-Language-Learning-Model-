@@ -1,0 +1,19 @@
+from enum import Enum
+
+class EpistemicStatus(str, Enum):
+    OBSERVED = "OBSERVED"
+    DEFINED = "DEFINED"
+    IMPORTED = "IMPORTED"
+    DERIVED = "DERIVED"
+    SYNTHESIZED = "SYNTHESIZED"
+    HYPOTHETICAL = "HYPOTHETICAL"
+    ASSUMED = "ASSUMED"
+    UNKNOWN = "UNKNOWN"
+    INVALID = "INVALID"
+    CONTRADICTED = "CONTRADICTED"
+
+class ValidationStatus(str, Enum):
+    VALID = "VALID"
+    INVALID = "INVALID"
+    UNVERIFIED = "UNVERIFIED"
+    CONTRADICTED = "CONTRADICTED"

@@ -1,2 +1,0 @@
-cycle_id,user_input,initial_force,force_decay_rate,friction,initial_velocity,time_to_near_zero,question_generated,user_response,new_force,trajectory_direction
-1,I want to learn quantum mechanics.,10.0,0.5,1.5,0.0,9.499999999999982,Would you like to start with wave-particle duality or the Schrödinger equation?,N/A,0.0,"[1.0, 0.5]"
