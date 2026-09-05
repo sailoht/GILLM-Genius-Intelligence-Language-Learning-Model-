@@ -11,7 +11,7 @@ class GIR:
     The common internal contract representation between LangBaby and GILLM Core.
     Fully serializable to/from JSON.
     """
-    id: str
+    id: str = "gir_default"
     intent: str = "STATEMENT"
     entities: List[Dict[str, Any]] = field(default_factory=list)
     concepts: List[Dict[str, Any]] = field(default_factory=list)
@@ -27,10 +27,22 @@ class GIR:
     epistemic_status: EpistemicStatus = EpistemicStatus.OBSERVED
     validation_status: ValidationStatus = ValidationStatus.VALID
     provenance: ProvenanceRecord = field(default_factory=ProvenanceRecord)
+    version: str = "0.1.0"
+    ambiguity_flag: bool = False
+    interpretations: List[Dict[str, Any]] = field(default_factory=list)
+
+    @property
+    def gir_id(self) -> str:
+        return self.id
+
+    @gir_id.setter
+    def gir_id(self, val: str):
+        self.id = val
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
+            "version": self.version,
             "intent": self.intent,
             "entities": self.entities,
             "concepts": self.concepts,
@@ -43,9 +55,11 @@ class GIR:
             "spatial_info": self.spatial_info,
             "temporal_info": self.temporal_info,
             "causality": self.causality,
-            "epistemic_status": self.epistemic_status.value,
-            "validation_status": self.validation_status.value,
-            "provenance": self.provenance.to_dict()
+            "epistemic_status": self.epistemic_status.value if isinstance(self.epistemic_status, EpistemicStatus) else str(self.epistemic_status),
+            "validation_status": self.validation_status.value if isinstance(self.validation_status, ValidationStatus) else str(self.validation_status),
+            "provenance": self.provenance.to_dict() if hasattr(self.provenance, 'to_dict') else {},
+            "ambiguity_flag": self.ambiguity_flag,
+            "interpretations": self.interpretations
         }
 
     def to_json(self) -> str:
@@ -62,7 +76,8 @@ class GIR:
             assumptions=prov_dict.get("assumptions", [])
         )
         return cls(
-            id=data.get("id", "gir_default"),
+            id=data.get("id", data.get("gir_id", "gir_default")),
+            version=data.get("version", "0.1.0"),
             intent=data.get("intent", "STATEMENT"),
             entities=data.get("entities", []),
             concepts=data.get("concepts", []),
@@ -77,7 +92,9 @@ class GIR:
             causality=data.get("causality", []),
             epistemic_status=EpistemicStatus(data.get("epistemic_status", "OBSERVED")),
             validation_status=ValidationStatus(data.get("validation_status", "VALID")),
-            provenance=prov
+            provenance=prov,
+            ambiguity_flag=data.get("ambiguity_flag", False),
+            interpretations=data.get("interpretations", [])
         )
 
     @classmethod

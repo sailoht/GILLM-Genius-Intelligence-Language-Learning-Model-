@@ -1,45 +1,42 @@
-import math
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Optional
 from src.gillm.molecules.molecule import DataMolecule
 from src.gillm.space.coordinates import SpatialCoordinate
-from src.gillm.query.molecule import QueryMolecule
-from src.gillm.fields.gaussian import GaussianInformationField
 
 class InformationRegistry3D:
     """
-    3D Information Registry -
-    Spatial 3D information-world and search structure for DataMolecules.
+    3D spatial registry for registering, searching, and filtering Data Molecules.
     """
-    def __init__(self) -> None:
-        self.molecules: Dict[str, DataMolecule] = {}
+    def __init__(self):
+        self.molecules: List[DataMolecule] = []
 
-    def insert(self, molecule: DataMolecule) -> None:
-        self.molecules[molecule.id] = molecule
+    def register(self, molecule: DataMolecule):
+        self.molecules.append(molecule)
 
-    def get_by_id(self, mol_id: str) -> Optional[DataMolecule]:
-        return self.molecules.get(mol_id)
+    def insert(self, molecule: DataMolecule):
+        self.register(molecule)
 
-    def spatial_search(self, center: Tuple[float, float, float], radius: float) -> List[DataMolecule]:
+    def register_molecule(self, molecule: DataMolecule):
+        self.register(molecule)
+
+    def query_spatial(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
+        pos = origin or center or SpatialCoordinate(0, 0, 0)
         results = []
-        center_coord = SpatialCoordinate(*center)
-        for mol in self.molecules.values():
-            mol_coord = SpatialCoordinate(*mol.spatial_position)
-            if center_coord.distance_to(mol_coord) <= radius:
-                results.append(mol)
+        for mol in self.molecules:
+            if mol.spatial_position is not None:
+                if isinstance(mol.spatial_position, tuple):
+                    mol_pos = SpatialCoordinate(*mol.spatial_position)
+                else:
+                    mol_pos = mol.spatial_position
+                dist = mol_pos.distance_to(pos)
+                if dist <= radius:
+                    results.append(mol)
         return results
 
-    def retrieve(self, query: QueryMolecule) -> List[DataMolecule]:
-        """Filters molecules matching entities, domain, or requested properties in QueryMolecule."""
-        candidates = []
-        for mol in self.molecules.values():
-            # Check domain or entity match
-            match = False
-            if query.entities:
-                if any(e.lower() in mol.name.lower() or e.lower() in [a.lower() for a in mol.data_atoms] for e in query.entities):
-                    match = True
-            else:
-                match = True
+    def spatial_search(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
+        return self.query_spatial(origin=origin, radius=radius, center=center)
 
-            if match:
-                candidates.append(mol)
-        return candidates
+    def query_radius(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
+        return self.query_spatial(origin=origin, radius=radius, center=center)
+
+    def query_type(self, molecule_type: str) -> List[DataMolecule]:
+        return [m for m in self.molecules if m.type == molecule_type or m.molecule_type == molecule_type]

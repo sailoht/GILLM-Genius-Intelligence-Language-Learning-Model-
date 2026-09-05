@@ -4,12 +4,43 @@ from typing import List, Dict, Any, Optional
 
 @dataclass
 class ProvenanceRecord:
-    source: str = "SYSTEM_INITIAL"
-    transformation: str = "DIRECT_ASSIGNMENT"
+    source: str = "UNKNOWN"
+    transformation: str = "NONE"
     rule_used: str = "NONE"
     inputs_used: List[str] = field(default_factory=list)
     assumptions: List[str] = field(default_factory=list)
     timestamp: float = field(default_factory=time.time)
+
+    def __init__(
+        self,
+        source: Optional[str] = None,
+        transformation: Optional[str] = None,
+        rule_used: Optional[str] = None,
+        inputs_used: Optional[List[str]] = None,
+        assumptions: Optional[List[str]] = None,
+        timestamp: Optional[float] = None,
+        source_id: Optional[str] = None,
+        transformation_type: Optional[str] = None,
+        input_ids: Optional[List[str]] = None
+    ):
+        self.source = source or source_id or "UNKNOWN"
+        self.transformation = transformation or transformation_type or "NONE"
+        self.rule_used = rule_used or "NONE"
+        self.inputs_used = inputs_used if inputs_used is not None else (input_ids if input_ids is not None else [])
+        self.assumptions = assumptions if assumptions is not None else []
+        self.timestamp = timestamp or time.time()
+
+    @property
+    def source_id(self) -> str:
+        return self.source
+
+    @property
+    def transformation_type(self) -> str:
+        return self.transformation
+
+    @property
+    def input_ids(self) -> List[str]:
+        return self.inputs_used
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -20,26 +51,3 @@ class ProvenanceRecord:
             "assumptions": self.assumptions,
             "timestamp": self.timestamp
         }
-
-class ProvenanceGraph:
-    """Tracks full derivation chains and input dependency trees for proof-carrying states."""
-    def __init__(self) -> None:
-        self.nodes: Dict[str, ProvenanceRecord] = {}
-
-    def add_record(self, item_id: str, record: ProvenanceRecord) -> None:
-        self.nodes[item_id] = record
-
-    def get_derivation_chain(self, item_id: str) -> List[Dict[str, Any]]:
-        chain = []
-        visited = set()
-        curr = item_id
-
-        while curr and curr in self.nodes and curr not in visited:
-            visited.add(curr)
-            rec = self.nodes[curr]
-            chain.append({"item_id": curr, "provenance": rec.to_dict()})
-            if rec.inputs_used:
-                curr = rec.inputs_used[0]
-            else:
-                break
-        return chain

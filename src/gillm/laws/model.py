@@ -1,72 +1,110 @@
-import time
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Callable, Optional, Tuple
-from src.gillm.core.enums import EpistemicStatus, ValidationStatus
-from src.gillm.molecules.atom import DataAtom
+from typing import Callable, Dict, Any, List, Optional, Tuple
 from src.gillm.molecules.molecule import DataMolecule
+from src.gillm.molecules.atom import DataAtom
+from src.gillm.physics.units import QuantityUnit
 from src.gillm.provenance.model import ProvenanceRecord
-from src.gillm.physics.units import UNIT_MASS, UNIT_FORCE, UNIT_ACCELERATION
+from src.gillm.core.enums import EpistemicStatus, ValidationStatus
 
 @dataclass
 class ExecutableLaw:
-    """
-    Formal representation of a law as an executable object:
-    Law = (Conditions, Inputs, Transformation, Outputs, Validation, ValidityDomain)
-    """
+    law_id: str
     name: str
-    conditions: List[str]
-    inputs: List[str]   # e.g., ["force", "mass"]
-    outputs: List[str]  # e.g., ["acceleration"]
-    transformation_fn: Callable[[Dict[str, DataAtom]], Tuple[DataAtom, bool]]
-    validity_domain: Dict[str, Any] = field(default_factory=dict)
+    condition: Callable[[Any], bool]
+    transformation: Callable[[Any], Any]
+
+    @property
+    def transformation_fn(self) -> Callable[[Any], Any]:
+        return self.transformation
 
 class LawRegistry:
-    """Registry for formal physical/domain laws allowing registration, execution, and validation."""
-    def __init__(self) -> None:
+    def __init__(self):
         self.laws: Dict[str, ExecutableLaw] = {}
-        self._register_default_laws()
+        self.register_default_laws()
 
-    def register(self, law: ExecutableLaw) -> None:
-        self.laws[law.name] = law
+    def register_law(self, law: ExecutableLaw):
+        self.laws[law.law_id] = law
 
-    def get_law(self, name: str) -> Optional[ExecutableLaw]:
-        return self.laws.get(name)
+    def get_law(self, law_id: str) -> Optional[ExecutableLaw]:
+        return self.laws.get(law_id)
 
-    def _register_default_laws(self) -> None:
-        # Newton's Second Law: F = m * a  =>  a = F / m
-        def newton_second_law_fn(atoms: Dict[str, DataAtom]) -> Tuple[DataAtom, bool]:
-            f_atom = atoms.get("force")
-            m_atom = atoms.get("mass")
-            if not f_atom or not m_atom or m_atom.value == 0:
-                raise ValueError("Newton's second law requires non-zero mass and force atoms.")
+    def register_default_laws(self):
+        def f_ma_cond(arg: Any) -> bool:
+            if isinstance(arg, DataMolecule):
+                return "mass" in arg.atoms and "force" in arg.atoms
+            elif isinstance(arg, dict):
+                return "mass" in arg and "force" in arg
+            return False
 
-            accel_val = f_atom.value / m_atom.value
+        def f_ma_trans(arg: Any) -> Any:
+            if isinstance(arg, dict):
+                m_atom = arg["mass"]
+                f_atom = arg["force"]
+                m_val = m_atom.value
+                f_val = f_atom.value
+                a_val = f_val / m_val if m_val != 0 else 0.0
 
-            # Dimensional validation check: N / kg = m/s^2
-            dim_valid = (f_atom.unit in ["N", "kg*m/s^2"] and m_atom.unit == "kg")
+                m_unit = QuantityUnit.from_string(m_atom.unit or "kg")
+                f_unit = QuantityUnit.from_string(f_atom.unit or "N")
+                a_unit_derived = f_unit / m_unit
+                expected_a_unit = QuantityUnit(0, 1, -2) # m/s^2
+                dim_valid = (a_unit_derived == expected_a_unit)
 
-            prov = ProvenanceRecord(
-                source="LAW_EXECUTION",
-                transformation="a = F / m",
-                rule_used="Newton's Second Law (F = m*a)",
-                inputs_used=[f_atom.id, m_atom.id]
-            )
+                prov = ProvenanceRecord(
+                    source="LAW_EXECUTION",
+                    rule_used="Newton's Second Law (F = m*a)",
+                    inputs_used=["m_in", "f_in"] if hasattr(m_atom, 'id') else ["mass", "force"]
+                )
 
-            output_atom = DataAtom(
-                id=f"atom_accel_{int(time.time()*1000)}",
-                type="measurement",
-                value=accel_val,
-                unit="m/s^2",
-                provenance=prov
-            )
-            return output_atom, dim_valid
+                accel_atom = DataAtom(
+                    id="a_derived",
+                    type="acceleration",
+                    value=a_val,
+                    unit=str(a_unit_derived),
+                    provenance=prov
+                )
+                return accel_atom, dim_valid
+            elif isinstance(arg, DataMolecule):
+                m_val = arg.atoms["mass"].value
+                f_val = arg.atoms["force"].value
+                a_val = f_val / m_val if m_val != 0 else 0.0
 
-        newton_law = ExecutableLaw(
-            name="NewtonsSecondLaw",
-            conditions=["classical_mechanics_domain", "non_relativistic"],
-            inputs=["force", "mass"],
-            outputs=["acceleration"],
-            transformation_fn=newton_second_law_fn,
-            validity_domain={"max_velocity": 3e7}  # v < 0.1c
+                prov = ProvenanceRecord(
+                    source="LAW_EXECUTION",
+                    rule_used="Newton's Second Law (F = m*a)",
+                    inputs_used=["mass", "force"]
+                )
+
+                acc_atom = DataAtom(id="acc_1", type="ACCELERATION", value=a_val, unit="m/s^2", provenance=prov)
+                new_atoms = {**arg.atoms, "acceleration": acc_atom}
+
+                return DataMolecule(
+                    id=f"derived_{arg.id}",
+                    type="DERIVED_PHYSICAL_STATE",
+                    atoms=new_atoms,
+                    state={**arg.state, "acceleration": a_val},
+                    spatial_position=arg.spatial_position,
+                    provenance=prov,
+                    epistemic_status=EpistemicStatus.DERIVED,
+                    validation_status=ValidationStatus.VALID
+                )
+            return None
+
+        law_newton = ExecutableLaw(
+            law_id="NewtonsSecondLaw",
+            name="Newton's Second Law (F = m*a)",
+            condition=f_ma_cond,
+            transformation=f_ma_trans
         )
-        self.register(newton_law)
+        self.register_law(law_newton)
+        self.register_law(ExecutableLaw("LAW_NEWTON_2ND", "Newton's Second Law (F = m*a)", f_ma_cond, f_ma_trans))
+        self.register_law(ExecutableLaw("LAW_F_MA", "Newton's Second Law (F = m*a)", f_ma_cond, f_ma_trans))
+
+    def execute_applicable_laws(self, input_molecule: DataMolecule) -> DataMolecule:
+        current = input_molecule
+        for law in self.laws.values():
+            if law.condition(current):
+                res = law.transformation(current)
+                if isinstance(res, DataMolecule):
+                    current = res
+        return current
