@@ -58,7 +58,7 @@ class GILLMRuntimeEngine:
         accel_val = synth_mol.atoms["acceleration"].value if "acceleration" in synth_mol.atoms else 2.0
         output_gir_dict = synth_mol.to_dict()
 
-        final_answer = f"Question processed. Calculated acceleration is {accel_val} m/s^2."
+        final_answer = f"Question processed. calculated acceleration is {accel_val} m/s^2"
 
         return {
             "input_gir": input_gir.to_dict(),

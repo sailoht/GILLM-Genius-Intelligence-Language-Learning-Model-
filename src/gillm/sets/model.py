@@ -27,13 +27,13 @@ class InformationSet:
         return item in self.elements
 
     def union(self, other: 'InformationSet') -> 'InformationSet':
-        return InformationSet(name=f"{self.name}_∪_{other.name}", elements=self.elements.union(other.elements))
+        return InformationSet(name=f"{self.name}_U_{other.name}", elements=self.elements.union(other.elements))
 
     def intersection(self, other: 'InformationSet') -> 'InformationSet':
-        return InformationSet(name=f"{self.name}_∩_{other.name}", elements=self.elements.intersection(other.elements))
+        return InformationSet(name=f"{self.name}_I_{other.name}", elements=self.elements.intersection(other.elements))
 
     def difference(self, other: 'InformationSet') -> 'InformationSet':
-        return InformationSet(name=f"{self.name}_\_{other.name}", elements=self.elements.difference(other.elements))
+        return InformationSet(name=f"{self.name}_diff_{other.name}", elements=self.elements.difference(other.elements))
 
     def is_subset_of(self, other: 'InformationSet') -> bool:
         return self.elements.issubset(other.elements)
