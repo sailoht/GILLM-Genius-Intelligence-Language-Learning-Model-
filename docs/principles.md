@@ -1,30 +1,10 @@
-# Core Design Principles of GILLM & LangBaby
+# GILLM 0.5.0 Architecture & Principles
 
-## 1. NO NEXT-TOKEN PREDICTION
-The core intelligence and language generation in GILLM are **NOT** built around $P(\text{token}_t \mid \text{token}_1 \dots \text{token}_{t-1})$ autoregressive neural generation.
-
-Language generation is based on explicit structural construction:
-```
-Word → Phrase → Proposition → Sentence → Paragraph → Section → Document
-```
-
-## 2. NO-ILLUSION PRINCIPLE
-Nothing becomes an asserted fact without a valid state path and proof-carrying derivation provenance.
-
-### Epistemic Status:
-*   `OBSERVED`: Directly witnessed facts.
-*   `DEFINED`: Axiomatically defined.
-*   `IMPORTED`: Loaded from external data sources.
-*   `DERIVED`: Mathematically/algebraically derived from laws.
-*   `SYNTHESIZED`: Constructed via multi-source synthesis.
-*   `HYPOTHETICAL`: Assumed for scenario evaluation.
-*   `ASSUMED`: Unverified assumption.
-*   `UNKNOWN`: Insufficient information.
-*   `INVALID`: Contradicted or mathematically failed.
-*   `CONTRADICTED`: Falsified by counter-evidence.
-
-### Validation Status:
-*   `VALID`, `INVALID`, `UNVERIFIED`, `CONTRADICTED`.
-
-## 3. UNKNOWN IS A FIRST-CLASS STATE
-`UNKNOWN != FAILURE`. If the system cannot establish something from available information, it represents that explicitly rather than fabricating proselike hallucinations.
+## Principles
+1. **No Next-Token Prediction**: Language understanding and state synthesis are structural and compositional.
+2. **Language is Not Intelligence**: LangBaby handles human communication while GILLM Core models the world, laws, space, and time.
+3. **DataMolecule Identity Invariant**: DataMolecule identity is stable and independent from its mutable state. InformationSet membership is identity-based and must not depend on hashing the mutable DataMolecule object.
+4. **Epistemic vs Validation Status**:
+   - Epistemic: `OBSERVED`, `DERIVED`, `SYNTHESIZED`, `HYPOTHETICAL`, `ASSUMED`, `UNKNOWN`.
+   - Validation: `VALID`, `INVALID`, `UNVERIFIED`, `CONTRADICTED`.
+5. **State Transition Engine**: $S_{t+1} = T(S_t, \text{Law}, \text{Context})$ operates over `InformationSet` collections and `Vector` state representations with proof-carrying provenance.

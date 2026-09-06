@@ -6,7 +6,7 @@ from src.gillm.vectors.model import Vector
 from src.gillm.provenance.model import ProvenanceRecord
 from src.gillm.core.enums import EpistemicStatus, ValidationStatus
 
-@dataclass(unsafe_hash=True)
+@dataclass
 class DataMolecule:
     """
     3D Information Object representing an individual object, concept, event, or scenario.
@@ -15,15 +15,15 @@ class DataMolecule:
     id: str = "mol_default"
     type: str = "GENERIC_MOLECULE"
     name: str = "GenericMolecule"
-    data_atoms: Dict[str, DataAtom] = field(default_factory=dict, hash=False)
-    state: Dict[str, Any] = field(default_factory=dict, hash=False)
-    vector_state: Dict[str, Vector] = field(default_factory=dict, hash=False)
-    relations: List[Dict[str, Any]] = field(default_factory=list, hash=False)
-    spatial_position: Optional[SpatialCoordinate] = field(default=None, hash=False)
-    provenance: ProvenanceRecord = field(default_factory=ProvenanceRecord, hash=False)
-    epistemic_status: EpistemicStatus = field(default=EpistemicStatus.OBSERVED, hash=False)
-    validation_status: ValidationStatus = field(default=ValidationStatus.VALID, hash=False)
-    laws: list = field(default_factory=list, hash=False)
+    data_atoms: Dict[str, DataAtom] = field(default_factory=dict)
+    state: Dict[str, Any] = field(default_factory=dict)
+    vector_state: Dict[str, Vector] = field(default_factory=dict)
+    relations: List[Dict[str, Any]] = field(default_factory=list)
+    spatial_position: Optional[SpatialCoordinate] = None
+    provenance: ProvenanceRecord = field(default_factory=ProvenanceRecord)
+    epistemic_status: EpistemicStatus = EpistemicStatus.OBSERVED
+    validation_status: ValidationStatus = ValidationStatus.VALID
+    laws: list = field(default_factory=list)
 
     def __init__(
         self,
@@ -60,14 +60,6 @@ class DataMolecule:
         self.epistemic_status = epistemic_status or EpistemicStatus.OBSERVED
         self.validation_status = validation_status or ValidationStatus.VALID
         self.laws = laws if laws is not None else []
-
-    def __hash__(self) -> int:
-        return hash(self.id)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, DataMolecule):
-            return False
-        return self.id == other.id
 
     @property
     def molecule_id(self) -> str:
