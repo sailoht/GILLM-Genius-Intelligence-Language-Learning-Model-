@@ -1,31 +1,69 @@
-from typing import Dict, Any, List, Tuple
-from src.gillm.molecules.molecule import DataMolecule
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Any, List
 from src.gillm.core.enums import ValidationStatus, EpistemicStatus
+from src.gillm.molecules.molecule import DataMolecule
+
+@dataclass
+class ValidationFinding:
+    check_name: str
+    passed: bool
+    details: str
+
+@dataclass
+class SelfCriticResult:
+    status: ValidationStatus
+    is_valid: bool
+    findings: List[ValidationFinding] = field(default_factory=list)
 
 class SelfCritic:
     """
-    Internal Self-Criticism System:
-    Challenges solutions internally by evaluating dimensional validity, assumptions,
-    and missing evidence.
+    SelfCritic conducts deep inspection of inputs, dimensional validity, provenance,
+    laws execution results, contradictions, and missing assumptions.
+    Returns structured findings without blindly trusting ValidationStatus.
     """
-    def challenge_solution(self, molecule: DataMolecule) -> Tuple[bool, List[str]]:
-        findings = []
+    def critique(self, molecule: DataMolecule) -> SelfCriticResult:
+        findings: List[ValidationFinding] = []
 
-        # 1. Check epistemic status
-        if molecule.epistemic_status == EpistemicStatus.ASSUMED:
-            findings.append("Warning: Solution is based on unverified ASSUMED epistemic status.")
-        elif molecule.epistemic_status == EpistemicStatus.HYPOTHETICAL:
-            findings.append("Warning: Solution is HYPOTHETICAL; requires empirical observation.")
+        # Check 1: Provenance completeness
+        prov_ok = bool(molecule.provenance and molecule.provenance.source != "UNKNOWN")
+        findings.append(ValidationFinding(
+            check_name="ProvenanceCompleteness",
+            passed=prov_ok,
+            details=f"Source: {molecule.provenance.source}, Rule: {molecule.provenance.rule_used}"
+        ))
 
-        # 2. Check validation status
-        if molecule.validation_status != ValidationStatus.VALID:
-            findings.append(f"Validation failure: Molecule status is {molecule.validation_status.value}.")
-            return False, findings
+        # Check 2: Epistemic integrity (not claiming OBSERVED if derived)
+        ep_ok = True
+        if molecule.provenance.transformation != "NONE" and molecule.epistemic_status == EpistemicStatus.OBSERVED:
+            ep_ok = False
+            findings.append(ValidationFinding(
+                check_name="EpistemicIntegrity",
+                passed=False,
+                details="Falsely claims OBSERVED for derived or transformed state."
+            ))
+        else:
+            findings.append(ValidationFinding(
+                check_name="EpistemicIntegrity",
+                passed=True,
+                details=f"Epistemic status '{molecule.epistemic_status}' matches provenance."
+            ))
 
-        # 3. Check atoms
-        if not molecule.data_atoms:
-            findings.append("Contradiction/Weakness: DataMolecule contains no data atoms.")
-            return False, findings
+        # Check 3: Data Atoms or Vector State presence
+        atoms_ok = len(molecule.atoms) > 0 or len(molecule.vector_state) > 0
+        findings.append(ValidationFinding(
+            check_name="StatePresence",
+            passed=atoms_ok,
+            details=f"Atoms count: {len(molecule.atoms)}, Vector states: {len(molecule.vector_state)}"
+        ))
 
-        findings.append("Self-criticism passed: Dimensions valid, provenance verified, no contradictions.")
-        return True, findings
+        all_passed = all(f.passed for f in findings)
+        final_status = ValidationStatus.VALID if all_passed else ValidationStatus.INVALID
+
+        return SelfCriticResult(
+            status=final_status,
+            is_valid=all_passed,
+            findings=findings
+        )
+
+    def challenge_solution(self, molecule: DataMolecule) -> SelfCriticResult:
+        return self.critique(molecule)

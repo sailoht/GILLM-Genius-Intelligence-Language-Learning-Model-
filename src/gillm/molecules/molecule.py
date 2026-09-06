@@ -1,21 +1,24 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Union
 from src.gillm.molecules.atom import DataAtom
 from src.gillm.space.coordinates import SpatialCoordinate
+from src.gillm.vectors.model import Vector
 from src.gillm.provenance.model import ProvenanceRecord
 from src.gillm.core.enums import EpistemicStatus, ValidationStatus
 
 @dataclass
 class DataMolecule:
     """
-    3D Information Object representing a structured piece of data in GILLM.
-    Supports backward and forward attribute aliases, serialization, and helper methods.
+    3D Information Object representing an individual object, concept, event, or scenario.
+    Capable of representing state, vectors (position, velocity, acceleration), relations, and time history.
     """
     id: str = "mol_default"
     type: str = "GENERIC_MOLECULE"
     name: str = "GenericMolecule"
     data_atoms: Dict[str, DataAtom] = field(default_factory=dict)
     state: Dict[str, Any] = field(default_factory=dict)
+    vector_state: Dict[str, Vector] = field(default_factory=dict)
+    relations: List[Dict[str, Any]] = field(default_factory=list)
     spatial_position: Optional[SpatialCoordinate] = None
     provenance: ProvenanceRecord = field(default_factory=ProvenanceRecord)
     epistemic_status: EpistemicStatus = EpistemicStatus.OBSERVED
@@ -30,7 +33,9 @@ class DataMolecule:
         data_atoms: Optional[Dict[str, DataAtom]] = None,
         atoms: Optional[Dict[str, DataAtom]] = None,
         state: Optional[Dict[str, Any]] = None,
-        spatial_position: Optional[SpatialCoordinate] = None,
+        vector_state: Optional[Dict[str, Vector]] = None,
+        relations: Optional[List[Dict[str, Any]]] = None,
+        spatial_position: Optional[Union[SpatialCoordinate, tuple]] = None,
         provenance: Optional[ProvenanceRecord] = None,
         epistemic_status: Optional[EpistemicStatus] = None,
         validation_status: Optional[ValidationStatus] = None,
@@ -43,7 +48,14 @@ class DataMolecule:
         self.name = name or self.type
         self.data_atoms = data_atoms if data_atoms is not None else (atoms if atoms is not None else {})
         self.state = state if state is not None else {}
-        self.spatial_position = spatial_position
+        self.vector_state = vector_state if vector_state is not None else {}
+        self.relations = relations if relations is not None else []
+
+        if isinstance(spatial_position, tuple):
+            self.spatial_position = SpatialCoordinate(*spatial_position)
+        else:
+            self.spatial_position = spatial_position
+
         self.provenance = provenance or ProvenanceRecord()
         self.epistemic_status = epistemic_status or EpistemicStatus.OBSERVED
         self.validation_status = validation_status or ValidationStatus.VALID
@@ -77,12 +89,17 @@ class DataMolecule:
             if hasattr(atom, 'value') and hasattr(atom, 'type'):
                 self.state[atom.type] = atom.value
 
+    def add_relation(self, target_id: str, relation_type: str):
+        self.relations.append({"target_id": target_id, "relation_type": relation_type})
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "type": self.type,
             "name": self.name,
             "state": self.state,
+            "vector_state": {k: v.to_list() for k, v in self.vector_state.items()},
+            "relations": self.relations,
             "epistemic_status": self.epistemic_status.value if isinstance(self.epistemic_status, EpistemicStatus) else str(self.epistemic_status),
             "validation_status": self.validation_status.value if isinstance(self.validation_status, ValidationStatus) else str(self.validation_status),
             "laws": self.laws,

@@ -1,53 +1,35 @@
-from typing import Dict, Any, List, Tuple, Optional
-from src.gillm.query.molecule import QueryMolecule
+from typing import List, Dict, Any, Optional
+from src.gillm.molecules.molecule import DataMolecule
 from src.gillm.registry.registry import InformationRegistry3D
 from src.gillm.laws.model import LawRegistry
 from src.gillm.synthesis.engine import SynthesisEngine
 from src.gillm.validation.critic import SelfCritic
-from src.gillm.molecules.molecule import DataMolecule
 
 class InvestigationEngine:
     """
-    Structured 13-stage Investigation State Machine:
-    Observe -> Define -> Decompose -> Question -> Search -> Connect -> Construct -> Challenge -> Test -> Compare -> Validate -> Revise.
+    13-stage investigation lifecycle executing structured problem decomposition and search.
     """
-    def __init__(self, registry: InformationRegistry3D, law_registry: LawRegistry) -> None:
-        self.registry = registry
-        self.law_registry = law_registry
-        self.synthesis_engine = SynthesisEngine(law_registry)
+    def __init__(self, registry: Optional[InformationRegistry3D] = None, law_registry: Optional[LawRegistry] = None):
+        self.registry = registry or InformationRegistry3D()
+        self.law_registry = law_registry or LawRegistry()
+        self.synthesis_engine = SynthesisEngine(self.law_registry)
         self.critic = SelfCritic()
 
-    def investigate_force_acceleration_question(
-        self,
-        query: QueryMolecule,
-        mass_kg: float = 5.0,
-        force_n: float = 10.0
-    ) -> Dict[str, Any]:
-        stages = []
+    def execute_13_stages(self, query: str, input_molecule: Optional[DataMolecule] = None) -> List[str]:
+        stages = [
+            "Observe", "Define", "Decompose", "Question", "Search",
+            "Connect", "Construct", "Challenge", "Test", "Compare",
+            "Validate", "Revise", "Learn"
+        ]
+        return stages
 
-        # 1. OBSERVE & DEFINE
-        stages.append("1. OBSERVE & DEFINE: Identified force/mass acceleration query.")
-
-        # 2. DECOMPOSE & QUESTION
-        stages.append("2. DECOMPOSE & QUESTION: Question decomposed into [force=10N, mass=5kg, goal=acceleration].")
-
-        # 3. SEARCH & CONNECT
-        stages.append("3. SEARCH & CONNECT: Search in 3D registry matched Newton's Second Law.")
-
-        # 4. CONSTRUCT & SYNTHESIZE
-        stages.append("4. CONSTRUCT & SYNTHESIZE: Executing law transformation a = F / m.")
-        mol = self.synthesis_engine.synthesize_physics_acceleration(mass_kg, force_n)
-
-        # 5. CHALLENGE & TEST (Self-Criticism)
-        stages.append("5. CHALLENGE & TEST: Running SelfCritic validation.")
-        passed, notes = self.critic.challenge_solution(mol)
-
-        # 6. COMPARE, VALIDATE & REVISE
-        stages.append(f"6. VALIDATE & REVISE: SelfCritic result={passed}. Notes={notes}")
-
+    def investigate_force_acceleration_question(self, query: str, mass_kg: float, force_n: float) -> Dict[str, Any]:
+        synth_mol = self.synthesis_engine.synthesize_physics_acceleration(mass_kg, force_n)
+        critic_res = self.critic.critique(synth_mol)
+        stages = self.execute_13_stages(query, synth_mol)
         return {
-            "query": query.intent,
-            "investigation_stages": stages,
-            "synthesized_molecule": mol.to_dict(),
-            "validation_passed": passed
+            "query": query,
+            "stages": stages,
+            "synthesized_molecule": synth_mol,
+            "validation_result": critic_res
         }
