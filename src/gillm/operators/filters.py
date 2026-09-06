@@ -3,24 +3,33 @@ from src.gillm.molecules.molecule import DataMolecule
 from src.gillm.space.coordinates import SpatialCoordinate
 
 class SpatialFilter:
-    def __init__(self, center: Optional[SpatialCoordinate] = None, radius: float = 0.0):
-        self.center = center or SpatialCoordinate(0, 0, 0)
+    def __init__(self, center: Optional[Any] = None, radius: float = 0.0):
+        if isinstance(center, tuple):
+            self.center = SpatialCoordinate(*center)
+        else:
+            self.center = center or SpatialCoordinate(0, 0, 0)
         self.radius = radius
 
     def filter(self, molecules: List[DataMolecule]) -> List[DataMolecule]:
         results = []
         for m in molecules:
             if m.spatial_position is not None:
-                if m.spatial_position.distance_to(self.center) <= self.radius:
+                if isinstance(m.spatial_position, tuple):
+                    mol_pos = SpatialCoordinate(*m.spatial_position)
+                else:
+                    mol_pos = m.spatial_position
+                if mol_pos.distance_to(self.center) <= self.radius:
                     results.append(m)
         return results
 
 class SemanticFilter:
     def __init__(self, required_type: Optional[str] = None):
-        self.required_type = required_type or "GENERIC_MOLECULE"
+        self.required_type = required_type
 
     def filter(self, molecules: List[DataMolecule]) -> List[DataMolecule]:
-        return [m for m in molecules if m.type == self.required_type or m.molecule_type == self.required_type]
+        if not self.required_type:
+            return molecules
+        return [m for m in molecules if m.type == self.required_type or m.molecule_type == self.required_type or m.name == self.required_type]
 
 class FilterPipeline:
     def __init__(self, filters: Optional[List[Any]] = None):

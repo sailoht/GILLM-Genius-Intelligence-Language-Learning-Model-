@@ -66,11 +66,13 @@ class LawRegistry:
                 expected_a_unit = QuantityUnit(0, 1, -2) # m/s^2
                 dim_valid = (a_unit_derived == expected_a_unit)
 
-                inputs_list = [getattr(f_atom, 'id', 'force'), getattr(m_atom, 'id', 'mass')]
+                f_id = getattr(f_atom, 'id', 'f1')
+                m_id = getattr(m_atom, 'id', 'm1')
+
                 prov = ProvenanceRecord(
                     source="LAW_EXECUTION",
                     rule_used="Newton's Second Law (F = m*a)",
-                    inputs_used=inputs_list
+                    inputs_used=[f_id, m_id]
                 )
 
                 accel_atom = DataAtom(
@@ -88,6 +90,7 @@ class LawRegistry:
 
                 prov = ProvenanceRecord(
                     source="LAW_EXECUTION",
+                    transformation="LAW_EXECUTION",
                     rule_used="Newton's Second Law (F = m*a)",
                     inputs_used=["mass", "force"]
                 )
@@ -108,7 +111,6 @@ class LawRegistry:
             return None
 
         # 2. Universal Gravity Kinematics State Transition Law
-        # State_t (pos, vel, gravity_acc) -> State_{t+1} (pos_{t+1}, vel_{t+1})
         def gravity_cond(arg: Any) -> bool:
             if isinstance(arg, DataMolecule):
                 return "position" in arg.vector_state or "velocity" in arg.vector_state
@@ -126,6 +128,7 @@ class LawRegistry:
 
                 prov = ProvenanceRecord(
                     source="GRAVITY_LAW",
+                    transformation="LAW_EXECUTION",
                     rule_used="Kinematics State Transition",
                     inputs_used=[arg.id]
                 )

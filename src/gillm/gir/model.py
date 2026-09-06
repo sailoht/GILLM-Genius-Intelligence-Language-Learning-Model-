@@ -31,6 +31,49 @@ class GIR:
     ambiguity_flag: bool = False
     interpretations: List[Dict[str, Any]] = field(default_factory=list)
 
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        gir_id: Optional[str] = None,
+        intent: str = "STATEMENT",
+        entities: Optional[List[Dict[str, Any]]] = None,
+        concepts: Optional[List[Dict[str, Any]]] = None,
+        properties: Optional[Dict[str, Any]] = None,
+        relations: Optional[List[Dict[str, Any]]] = None,
+        events: Optional[List[Dict[str, Any]]] = None,
+        observations: Optional[List[Dict[str, Any]]] = None,
+        actions: Optional[List[Dict[str, Any]]] = None,
+        goals: Optional[List[Dict[str, Any]]] = None,
+        spatial_info: Optional[Dict[str, Any]] = None,
+        temporal_info: Optional[Dict[str, Any]] = None,
+        causality: Optional[List[Dict[str, Any]]] = None,
+        epistemic_status: EpistemicStatus = EpistemicStatus.OBSERVED,
+        validation_status: ValidationStatus = ValidationStatus.VALID,
+        provenance: Optional[ProvenanceRecord] = None,
+        version: str = "0.1.0",
+        ambiguity_flag: bool = False,
+        interpretations: Optional[List[Dict[str, Any]]] = None
+    ):
+        self.id = id or gir_id or "gir_default"
+        self.intent = intent
+        self.entities = entities if entities is not None else []
+        self.concepts = concepts if concepts is not None else []
+        self.properties = properties if properties is not None else {}
+        self.relations = relations if relations is not None else []
+        self.events = events if events is not None else []
+        self.observations = observations if observations is not None else []
+        self.actions = actions if actions is not None else []
+        self.goals = goals if goals is not None else []
+        self.spatial_info = spatial_info if spatial_info is not None else {}
+        self.temporal_info = temporal_info if temporal_info is not None else {}
+        self.causality = causality if causality is not None else []
+        self.epistemic_status = epistemic_status
+        self.validation_status = validation_status
+        self.provenance = provenance or ProvenanceRecord()
+        self.version = version
+        self.ambiguity_flag = ambiguity_flag
+        self.interpretations = interpretations if interpretations is not None else []
+
     @property
     def gir_id(self) -> str:
         return self.id
@@ -42,6 +85,7 @@ class GIR:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
+            "gir_id": self.id,
             "version": self.version,
             "intent": self.intent,
             "entities": self.entities,

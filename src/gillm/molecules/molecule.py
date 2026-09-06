@@ -92,11 +92,31 @@ class DataMolecule:
     def add_relation(self, target_id: str, relation_type: str):
         self.relations.append({"target_id": target_id, "relation_type": relation_type})
 
+    def __getitem__(self, key: str) -> Any:
+        d = self.to_dict()
+        if key in d:
+            return d[key]
+        raise KeyError(key)
+
     def to_dict(self) -> Dict[str, Any]:
+        atoms_dict = {}
+        for k, atom in self.data_atoms.items():
+            if hasattr(atom, 'value'):
+                atoms_dict[k] = {
+                    "id": getattr(atom, 'id', k),
+                    "type": getattr(atom, 'type', 'GENERIC'),
+                    "value": atom.value,
+                    "unit": getattr(atom, 'unit', None)
+                }
+            else:
+                atoms_dict[k] = atom
+
         return {
             "id": self.id,
             "type": self.type,
             "name": self.name,
+            "data_atoms": atoms_dict,
+            "atoms": atoms_dict,
             "state": self.state,
             "vector_state": {k: v.to_list() for k, v in self.vector_state.items()},
             "relations": self.relations,

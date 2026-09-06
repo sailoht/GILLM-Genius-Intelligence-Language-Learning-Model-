@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from src.gillm.molecules.molecule import DataMolecule
 from src.gillm.space.coordinates import SpatialCoordinate
 
@@ -18,8 +18,13 @@ class InformationRegistry3D:
     def register_molecule(self, molecule: DataMolecule):
         self.register(molecule)
 
-    def query_spatial(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
-        pos = origin or center or SpatialCoordinate(0, 0, 0)
+    def query_spatial(self, origin: Optional[Any] = None, radius: float = 0.0, center: Optional[Any] = None) -> List[DataMolecule]:
+        pos_raw = origin if origin is not None else center
+        if isinstance(pos_raw, tuple):
+            pos = SpatialCoordinate(*pos_raw)
+        else:
+            pos = pos_raw or SpatialCoordinate(0, 0, 0)
+
         results = []
         for mol in self.molecules:
             if mol.spatial_position is not None:
@@ -32,10 +37,10 @@ class InformationRegistry3D:
                     results.append(mol)
         return results
 
-    def spatial_search(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
+    def spatial_search(self, origin: Optional[Any] = None, radius: float = 0.0, center: Optional[Any] = None) -> List[DataMolecule]:
         return self.query_spatial(origin=origin, radius=radius, center=center)
 
-    def query_radius(self, origin: Optional[SpatialCoordinate] = None, radius: float = 0.0, center: Optional[SpatialCoordinate] = None) -> List[DataMolecule]:
+    def query_radius(self, origin: Optional[Any] = None, radius: float = 0.0, center: Optional[Any] = None) -> List[DataMolecule]:
         return self.query_spatial(origin=origin, radius=radius, center=center)
 
     def query_type(self, molecule_type: str) -> List[DataMolecule]:
